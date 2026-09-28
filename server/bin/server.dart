@@ -1,34 +1,42 @@
 import 'dart:io';
 
-import 'package:shelf/shelf.dart';
+import 'package:postgres/postgres.dart';
+import 'package:server/server.dart';
 import 'package:shelf/shelf_io.dart';
-import 'package:shelf_router/shelf_router.dart';
 
-// Configure routes.
-final _router = Router()
-  ..get('/', _rootHandler)
-  ..get('/echo/<message>', _echoHandler);
+Future<void> main(List<String> args) async {
+  final Config config;
+  try {
+    config = Config.fromEnvironment();
+  } on ConfigException catch (e) {
+    stderr.writeln('Config error: $e');
+    exit(64);
+  }
 
-Response _rootHandler(Request req) {
-  return Response.ok('Hello, World!\n');
-}
+  final db = Pool.withUrl(config.databaseUrl);
+  try {
+    final applied = await migrate(db, config.migrationsDir);
+    print(
+      applied.isEmpty
+          ? 'Database schema is up to date.'
+          : 'Applied migrations: ${applied.join(', ')}',
+    );
+  } catch (e) {
+    stderr.writeln('Could not prepare the database: $e');
+    stderr.writeln('Is PostgreSQL running and DATABASE_URL correct?');
+    exit(69);
+  }
 
-Response _echoHandler(Request request) {
-  final message = request.params['message'];
-  return Response.ok('$message\n');
-}
+  final server = await serve(
+    buildHandler(config, db, logRequests: true),
+    InternetAddress.anyIPv4,
+    config.port,
+  );
+  print('Ringgit Runway API listening on http://localhost:${server.port}');
 
-void main(List<String> args) async {
-  // Use any available host or container IP (usually `0.0.0.0`).
-  final ip = InternetAddress.anyIPv4;
-
-  // Configure a pipeline that logs requests.
-  final handler = Pipeline()
-      .addMiddleware(logRequests())
-      .addHandler(_router.call);
-
-  // For running in containers, we respect the PORT environment variable.
-  final port = int.parse(Platform.environment['PORT'] ?? '8080');
-  final server = await serve(handler, ip, port);
-  print('Server listening on port ${server.port}');
+  ProcessSignal.sigint.watch().listen((_) async {
+    await server.close();
+    await db.close();
+    exit(0);
+  });
 }

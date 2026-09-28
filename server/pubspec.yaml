@@ -1,14 +1,21 @@
 name: server
-description: A server app using the shelf package and Docker.
+description: Ringgit Runway REST API (shelf + PostgreSQL).
 version: 1.0.0
+publish_to: none
 # repository: https://github.com/my_org/my_repo
 
 environment:
   sdk: ^3.13.2
 
 dependencies:
+  bcrypt: ^1.2.0
+  dart_jsonwebtoken: ^3.4.1
+  postgres: ^3.5.17
+  runway_core:
+    path: ../packages/runway_core
   shelf: ^1.4.2
   shelf_router: ^1.1.2
+  timezone: ^0.11.1
 
 dev_dependencies:
   http: ^1.2.2

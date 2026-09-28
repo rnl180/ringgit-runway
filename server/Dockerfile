@@ -1,21 +1,22 @@
-# Use latest stable channel SDK.
+# Build from the repository root (the server depends on packages/runway_core
+# and needs db/migrations):
+#   docker build -f server/Dockerfile -t ringgit-runway-api .
 FROM dart:stable AS build
 
-# Resolve app dependencies.
-WORKDIR /app
-COPY pubspec.* ./
-RUN dart pub get
+WORKDIR /src
+COPY packages/runway_core/pubspec.yaml packages/runway_core/
+COPY server/pubspec.* server/
+RUN cd server && dart pub get
 
-# Copy app source code (except anything in .dockerignore) and AOT compile app.
-COPY . .
-RUN dart build cli --target bin/server.dart -o output
+COPY packages/runway_core packages/runway_core
+COPY server server
+RUN cd server && dart build cli --target bin/server.dart -o output
 
-# Build minimal serving image from AOT-compiled `/server`
-# and the pre-built AOT-runtime in the `/runtime/` directory of the base image.
 FROM scratch
 COPY --from=build /runtime/ /
-COPY --from=build /app/output/bundle/ /app/
+COPY --from=build /src/server/output/bundle/ /app/
+COPY db/migrations /app/db/migrations
+ENV MIGRATIONS_DIR=/app/db/migrations
 
-# Start server.
 EXPOSE 8080
 CMD ["/app/bin/server"]
