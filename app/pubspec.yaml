@@ -7,8 +7,15 @@ environment:
   sdk: ^3.13.2
 
 dependencies:
+  fl_chart: ^1.2.0
   flutter:
     sdk: flutter
+  flutter_riverpod: ^3.4.3
+  flutter_secure_storage: ^11.2.0
+  go_router: ^18.0.1
+  http: ^1.6.0
+  runway_core:
+    path: ../packages/runway_core
 
 dev_dependencies:
   flutter_test:
