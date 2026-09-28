@@ -1,0 +1,11 @@
+name: runway_core
+description: Pure-Dart budget math and money formatting shared by the Ringgit Runway app and server.
+version: 0.1.0
+publish_to: none
+
+environment:
+  sdk: ^3.9.0
+
+dev_dependencies:
+  lints: ^6.0.0
+  test: ^1.25.6
