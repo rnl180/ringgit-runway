@@ -4,4 +4,7 @@
          to allow setting breakpoints, to provide hot reload, etc.
     -->
     <uses-permission android:name="android.permission.INTERNET"/>
+    <!-- Debug builds may call a development API over plain http on your
+         laptop's Wi-Fi address. Release builds need an https API. -->
+    <application android:usesCleartextTraffic="true"/>
 </manifest>

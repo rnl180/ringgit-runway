@@ -1,6 +1,8 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- The app talks to the Ringgit Runway API. -->
+    <uses-permission android:name="android.permission.INTERNET"/>
     <application
-        android:label="ringgit_runway"
+        android:label="Ringgit Runway"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
         <activity

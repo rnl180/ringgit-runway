@@ -9,9 +9,10 @@ Currency is Malaysian Ringgit, shown as `RM 1,234.50`.
 ## Layout
 
 ```
-app/      Flutter app (iOS, Android, web)
-server/   Dart REST API (shelf) talking to PostgreSQL
-db/       SQL migrations, applied in filename order
+app/                   Flutter app (iOS, Android, web)
+server/                Dart REST API (shelf) talking to PostgreSQL
+packages/runway_core/  Budget math + money formatting, pure Dart, used by app and server
+db/                    SQL migrations, applied in filename order
 ```
 
 The app never talks to PostgreSQL directly. It calls the API; only the server holds
@@ -102,11 +103,12 @@ GET    /me                     profile + savings goal
 PATCH  /me                     {displayName?, monthlySavingsGoalSen?}
 GET    /categories
 GET    /months/{yyyy-mm}       entries + bills with paid state + limits
-GET    /months/{yyyy-mm}/summary   the budget math above
+GET    /months/{yyyy-mm}/summary   the budget math above (?today=yyyy-mm-dd from the app)
 POST   /transactions           {kind, amountSen, categoryId, note?, occurredOn, billId?}
 DELETE /transactions/{id}
 GET|POST /bills, PATCH|DELETE /bills/{id}
 POST   /bills/{id}/pay         {occurredOn?} -> creates the expense entry
+POST   /months/{yyyy-mm}/carry-over  adds last month's leftover as carry_over income
 PUT    /limits/{categoryId}    {monthlyLimitSen} ; DELETE to remove
 ```
 
